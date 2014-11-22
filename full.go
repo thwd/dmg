@@ -9,7 +9,7 @@ func NewFullParser(p Parser) Parser {
 }
 
 func (p FullParser) GoString() string {
-	return "P(" + p.GoString() + ")"
+	return "F(" + p.GoString() + ")"
 }
 
 func (p FullParser) Parse(bs []byte) StateSet {
@@ -35,5 +35,6 @@ func (p FullParser) Parse(bs []byte) StateSet {
 			q.Add(t)
 
 		}
+
 	}
 }

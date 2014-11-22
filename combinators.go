@@ -2,7 +2,7 @@ package dmg
 
 type AlternationParser []Parser
 
-func NewAlternationParser(ps []Parser) Parser {
+func NewAlternationParser(ps ...Parser) Parser {
 	if len(ps) == 0 {
 		panic("NewAlternationParser called with zero parsers")
 	}
@@ -85,6 +85,7 @@ func (p PrependParser) Parse(bs []byte) StateSet {
 			Reject{[2]interface{}{p.Prepend, s.Value.(Reject).Value}},
 			s.Parser,
 		)
+
 	})
 }
 
@@ -94,7 +95,7 @@ func (p PrependParser) GoString() string {
 
 type SequenceParser []Parser
 
-func NewSequenceParser(ps []Parser) Parser {
+func NewSequenceParser(ps ...Parser) Parser {
 	if len(ps) == 0 {
 		panic("NewSequenceParser called with zero parsers")
 	}
@@ -118,25 +119,28 @@ func (p SequenceParser) Parse(bs []byte) StateSet {
 
 			cont := append([]Parser{s.Parser}, p[1:]...)
 
-			passups.Add(NewState(
-				s.Remnant,
-				nil,
-				NewSequenceParser(cont),
-			))
-
+			passups.Add(
+				NewState(
+					s.Remnant,
+					nil,
+					NewSequenceParser(cont...),
+				),
+			)
 			continue
 		}
 
-		if _, k := s.Value.(Reject); k {
-			rejects.Add(s)
+		if v, k := s.Value.(Accept); k {
+			passups.Add(
+				NewState(
+					s.Remnant,
+					nil,
+					NewPrependParser(v.Value, NewSequenceParser(p[1:]...)),
+				),
+			)
 			continue
 		}
 
-		passups.Add(NewState(
-			s.Remnant,
-			nil,
-			NewPrependParser(s.Value.(Accept).Value, NewSequenceParser(p[1:])),
-		))
+		rejects.Add(s)
 
 	}
 
@@ -159,7 +163,6 @@ func (p SequenceParser) GoString() string {
 type MappingParser struct {
 	Parser  Parser
 	Mapping func(interface{}) interface{}
-	// cause pointer are comparable
 }
 
 func NewMappingParser(p Parser, m func(interface{}) interface{}) Parser {
@@ -171,6 +174,7 @@ func (p MappingParser) Parse(bs []byte) StateSet {
 	r := p.Parser.Parse(bs)
 
 	return r.Map(func(s State) State {
+
 		if s.Value == nil {
 			return NewState(
 				s.Remnant,
@@ -178,6 +182,7 @@ func (p MappingParser) Parse(bs []byte) StateSet {
 				NewMappingParser(s.Parser, p.Mapping),
 			)
 		}
+
 		if v, k := s.Value.(Accept); k {
 			return NewState(
 				s.Remnant,
@@ -185,6 +190,7 @@ func (p MappingParser) Parse(bs []byte) StateSet {
 				s.Parser,
 			)
 		}
+
 		return s
 	})
 }
@@ -237,10 +243,10 @@ func (p KleeneParser) Parse(bs []byte) StateSet {
 				s.Remnant,
 				nil,
 				NewMaybeParser(
-					NewSequenceParser([]Parser{
+					NewSequenceParser(
 						s.Parser,
 						p,
-					}),
+					),
 				),
 			)
 		}
