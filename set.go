@@ -35,8 +35,8 @@ func (s *StateSet) Add(n State) {
 func (s *StateSet) Next() State {
 	z := *s
 	v := z[len(z)-1]
-	z = z[:len(z)-1]
-	*s = z
+	t := z[:len(z)-1]
+	*s = t
 	return v
 }
 

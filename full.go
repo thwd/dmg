@@ -33,7 +33,7 @@ func (p FullParser) Parse(bs []byte) StateSet {
 			}
 
 			if t.Parser == nil {
-				// return NewStateSet(t)
+				return NewStateSet(t)
 				continue
 			}
 
