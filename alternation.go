@@ -20,7 +20,7 @@ func (p AlternationParser) Parse(bs []byte) StateSet {
 
 		r := q.Parse(bs)
 
-		for i, l := 0, r.Len(); i < l; i++ {
+		for r.Len() > 0 {
 
 			s := r.Next()
 

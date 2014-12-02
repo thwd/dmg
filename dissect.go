@@ -11,11 +11,12 @@ func Dissect(q StateSet) chan State {
 }
 
 func dissectionLoop(q StateSet, c chan State) {
-	for {
+
+	for q.Len() > 0 {
 
 		r := q.Next().Reduce()
 
-		for i, l := 0, r.Len(); i < l; i++ {
+		for r.Len() > 0 {
 
 			t := r.Next()
 
@@ -24,9 +25,13 @@ func dissectionLoop(q StateSet, c chan State) {
 				continue
 			}
 
+			if _, k := t.Value.(Reject); k {
+				continue
+			}
+
 			q.Add(t)
 
 		}
-
 	}
+
 }

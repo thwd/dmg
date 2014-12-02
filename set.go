@@ -17,7 +17,7 @@ func NewStateSet(s ...State) StateSet {
 
 // convenience methods
 
-func (s *StateSet) Map(m func(State) State) StateSet {
+func (s StateSet) Map(m func(State) State) StateSet {
 
 	x := NewStateSet()
 

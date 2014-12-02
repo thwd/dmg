@@ -18,7 +18,7 @@ func (p SequenceParser) Parse(bs []byte) StateSet {
 
 	r := p[0].Parse(bs)
 
-	for i, l := 0, r.Len(); i < l; i++ {
+	for r.Len() > 0 {
 
 		s := r.Next()
 
