@@ -18,7 +18,7 @@ func (p FullParser) Parse(bs []byte) StateSet {
 
 	for {
 
-		r := q.Next().Reduce()
+		r, p := q.Next().Reduce(), NewStateSet()
 
 		for i, l := 0, r.Len(); i < l; i++ {
 
@@ -28,12 +28,21 @@ func (p FullParser) Parse(bs []byte) StateSet {
 				return NewStateSet(t)
 			}
 
+			if _, k := t.Value.(Reject); k {
+				return NewStateSet(t)
+			}
+
 			if t.Parser == nil {
+				// return NewStateSet(t)
 				continue
 			}
 
-			q.Add(t)
+			p.Add(t)
 
+		}
+
+		for _, z := range p {
+			q.Add(z)
 		}
 
 	}

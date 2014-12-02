@@ -1,8 +1,6 @@
 package dmg
 
-import (
-	"container/heap"
-)
+import ()
 
 type StateSet []State
 
@@ -10,10 +8,8 @@ func NewStateSet(s ...State) StateSet {
 
 	q := new(StateSet)
 
-	heap.Init(q)
-
 	for _, z := range s {
-		heap.Push(q, z)
+		q.Add(z)
 	}
 
 	return *q
@@ -26,44 +22,43 @@ func (s *StateSet) Map(m func(State) State) StateSet {
 	x := NewStateSet()
 
 	for i, l := 0, s.Len(); i < l; i++ {
-		x.Add(m(heap.Pop(s).(State)))
+		x.Add(m(s.Next()))
 	}
 
 	return x
 }
 
 func (s *StateSet) Add(n State) {
-	heap.Push(s, n)
+	*s = append(*s, n).reorder()
 }
 
 func (s *StateSet) Next() State {
-	return heap.Pop(s).(State)
+	z := *s
+	v := z[len(z)-1]
+	z = z[:len(z)-1]
+	*s = z
+	return v
 }
-
-// sort.Interface
 
 func (p StateSet) Len() int {
 	return len(p)
 }
 
-func (p StateSet) Less(i, j int) bool {
-	return len(p[i].Remnant) < len(p[j].Remnant)
-}
+func (p StateSet) reorder() StateSet {
 
-func (p StateSet) Swap(i, j int) {
-	p[i], p[j] = p[j], p[i]
-}
+	for i := (p.Len() - 1); i > 0; i-- {
 
-// heap.Interface
+		lower, higher := p[i-1], p[i]
 
-func (p *StateSet) Push(x interface{}) {
-	*p = append(*p, x.(State))
-}
+		// we want the shortest remnant on top
 
-func (p *StateSet) Pop() interface{} {
-	q := *p
-	l := len(q)
-	v := q[l-1]
-	*p = q[:l-1]
-	return v
+		if len(lower.Remnant) >= len(higher.Remnant) {
+			break
+		}
+
+		p[i-1], p[i] = higher, lower
+
+	}
+
+	return p
 }

@@ -103,3 +103,38 @@ func (p EpsilonParser) Parse(bs []byte) StateSet {
 func (p EpsilonParser) GoString() string {
 	return "ε"
 }
+
+type AnyParser struct{}
+
+func NewAnyParser() Parser {
+	return AnyParser{}
+}
+
+func (p AnyParser) Parse(bs []byte) StateSet {
+	if len(bs) == 0 {
+		return NewStateSet(NewState(bs, Reject{bs[:0]}, nil))
+	}
+	return NewStateSet(NewState(bs[1:], Accept{bs[:1]}, nil))
+}
+
+func (p AnyParser) GoString() string {
+	return "."
+}
+
+type NotRuneParser rune
+
+func NewNotRuneParser(r rune) Parser {
+	return NotRuneParser(r)
+}
+
+func (p NotRuneParser) Parse(bs []byte) StateSet {
+	r, w := utf8.DecodeRune(bs)
+	if w == 0 || r == (rune)(p) {
+		return NewStateSet(NewState(bs, Reject{bs}, nil))
+	}
+	return NewStateSet(NewState(bs[w:], Accept{bs[:w]}, nil))
+}
+
+func (p NotRuneParser) GoString() string {
+	return "."
+}
