@@ -12,7 +12,7 @@ func NewSequenceParser(ps ...Parser) Parser {
 	return SequenceParser(ps)
 }
 
-func (p SequenceParser) Parse(bs []byte) StateSet {
+func (p SequenceParser) Parse(bs Remnant) StateSet {
 
 	passups, rejects := NewStateSet(), NewStateSet()
 
@@ -22,28 +22,29 @@ func (p SequenceParser) Parse(bs []byte) StateSet {
 
 		s := r.Next()
 
-		if s.Value == nil {
+		if !s.Final {
 
 			cont := append([]Parser{s.Parser}, p[1:]...)
 
 			passups.Add(
-				NewState(
-					s.Remnant,
-					nil,
+				NewContinuedState(
 					NewSequenceParser(cont...),
+					s.Remnant,
 				),
 			)
+
 			continue
 		}
 
-		if v, k := s.Value.(Accept); k {
+		if s.Value.Success {
+
 			passups.Add(
-				NewState(
+				NewContinuedState(
+					NewPrependParser(s.Value.Value, NewSequenceParser(p[1:]...)),
 					s.Remnant,
-					nil,
-					NewPrependParser(v.Value, NewSequenceParser(p[1:]...)),
 				),
 			)
+
 			continue
 		}
 
@@ -56,13 +57,4 @@ func (p SequenceParser) Parse(bs []byte) StateSet {
 	}
 
 	return passups
-}
-
-func (p SequenceParser) GoString() string {
-	t := ""
-	for _, q := range p {
-		t += q.GoString() + "·"
-	}
-	t = t[:len(t)-2] // len("·") == 2
-	return t
 }

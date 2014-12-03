@@ -25,7 +25,7 @@ func dissectionLoop(q StateSet, c chan State) {
 				continue
 			}
 
-			if _, k := t.Value.(Reject); k {
+			if t.Final && !t.Value.Success {
 				continue
 			}
 

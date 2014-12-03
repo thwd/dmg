@@ -9,37 +9,30 @@ func NewPrependParser(r interface{}, p Parser) Parser {
 	return PrependParser{r, p}
 }
 
-func (p PrependParser) Parse(bs []byte) StateSet {
+func (p PrependParser) Parse(bs Remnant) StateSet {
 
 	r := p.Parser.Parse(bs)
 
 	return r.Map(func(s State) State {
 
-		if s.Value == nil {
-			return NewState(
-				s.Remnant,
-				nil,
+		if !s.Final {
+			return NewContinuedState(
 				NewPrependParser(p.Prepend, s.Parser),
-			)
-		}
-
-		if v, k := s.Value.(Accept); k {
-			return NewState(
 				s.Remnant,
-				Accept{[2]interface{}{p.Prepend, v.Value}},
-				s.Parser,
 			)
 		}
 
-		return NewState(
+		if s.Value.Success {
+			return NewFinalState(
+				Accept([2]interface{}{p.Prepend, s.Value.Value}),
+				s.Remnant,
+			)
+		}
+
+		return NewFinalState(
+			Reject([2]interface{}{p.Prepend, s.Value.Value}),
 			s.Remnant,
-			Reject{[2]interface{}{p.Prepend, s.Value.(Reject).Value}},
-			s.Parser,
 		)
 
 	})
-}
-
-func (p PrependParser) GoString() string {
-	return "P(" + p.Parser.GoString() + ")"
 }

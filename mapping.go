@@ -9,32 +9,26 @@ func NewMappingParser(p Parser, m func(interface{}) interface{}) Parser {
 	return MappingParser{p, m}
 }
 
-func (p MappingParser) Parse(bs []byte) StateSet {
+func (p MappingParser) Parse(bs Remnant) StateSet {
 
 	r := p.Parser.Parse(bs)
 
 	return r.Map(func(s State) State {
 
-		if s.Value == nil {
-			return NewState(
-				s.Remnant,
-				nil,
+		if !s.Final {
+			return NewContinuedState(
 				NewMappingParser(s.Parser, p.Mapping),
+				s.Remnant,
 			)
 		}
 
-		if v, k := s.Value.(Accept); k {
-			return NewState(
+		if s.Value.Success {
+			return NewFinalState(
+				Accept((p.Mapping)(s.Value.Value)),
 				s.Remnant,
-				Accept{(p.Mapping)(v.Value)},
-				s.Parser,
 			)
 		}
 
 		return s
 	})
-}
-
-func (p MappingParser) GoString() string {
-	return "M(" + p.Parser.GoString() + ")"
 }

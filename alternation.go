@@ -12,7 +12,7 @@ func NewAlternationParser(ps ...Parser) Parser {
 	return AlternationParser(ps)
 }
 
-func (p AlternationParser) Parse(bs []byte) StateSet {
+func (p AlternationParser) Parse(bs Remnant) StateSet {
 
 	passups, rejects := NewStateSet(), NewStateSet()
 
@@ -24,12 +24,11 @@ func (p AlternationParser) Parse(bs []byte) StateSet {
 
 			s := r.Next()
 
-			if _, k := s.Value.(Reject); k {
+			if s.Final && !s.Value.Success {
 				rejects.Add(s)
 			} else {
 				passups.Add(s)
 			}
-
 		}
 	}
 
@@ -38,13 +37,4 @@ func (p AlternationParser) Parse(bs []byte) StateSet {
 	}
 
 	return passups
-}
-
-func (p AlternationParser) GoString() string {
-	t := "("
-	for _, q := range p {
-		t += q.GoString() + "|"
-	}
-	t = t[:len(t)-1]
-	return t + ")"
 }

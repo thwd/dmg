@@ -5,27 +5,38 @@ import (
 	"unicode/utf8"
 )
 
-type Accept struct {
-	Value interface{}
-}
-
-type Reject struct {
-	Value interface{}
-}
+type Remnant []byte
 
 type Parser interface {
-	Parse([]byte) StateSet
-	GoString() string
+	Parse(Remnant) StateSet
+}
+
+type Value struct {
+	Success bool
+	Value   interface{}
+}
+
+func Accept(i interface{}) Value {
+	return Value{true, i}
+}
+
+func Reject(i interface{}) Value {
+	return Value{false, i}
 }
 
 type State struct {
-	Remnant []byte
-	Value   interface{}
+	Final   bool
+	Remnant Remnant
 	Parser  Parser
+	Value   Value
 }
 
-func NewState(r []byte, v interface{}, p Parser) State {
-	return State{r, v, p}
+func NewFinalState(v Value, r Remnant) State {
+	return State{true, r, nil, v}
+}
+
+func NewContinuedState(p Parser, r Remnant) State {
+	return State{false, r, p, Value{false, nil}}
 }
 
 func (s State) Reduce() StateSet {
@@ -49,21 +60,21 @@ func NewRangeParser(min, max rune) Parser {
 	return RangeParser{min, max}
 }
 
-func (p RangeParser) Parse(bs []byte) StateSet {
+func (p RangeParser) Parse(bs Remnant) StateSet {
 	r, w := utf8.DecodeRune(bs)
 	if w == 0 || r < p.Min || r > p.Max {
-		return NewStateSet(NewState(bs, Reject{bs}, nil))
+		return NewStateSet(
+			NewFinalState(Reject(bs), bs),
+		)
 	}
-	return NewStateSet(NewState(bs[w:], Accept{bs[:w]}, nil))
+	return NewStateSet(
+		NewFinalState(Accept(bs[:w]), bs[w:]),
+	)
 }
 
 func (p RangeParser) Equals(o Parser) bool {
 	q, k := o.(RangeParser)
 	return (k && q.Min == p.Min && q.Max == p.Max)
-}
-
-func (p RangeParser) GoString() string {
-	return "[" + string(p.Min) + "-" + string(p.Max) + "]"
 }
 
 type LiteralParser struct {
@@ -74,20 +85,23 @@ func NewLiteralParser(l string) Parser {
 	return LiteralParser{l}
 }
 
-func (p LiteralParser) Parse(bs []byte) StateSet {
+func (p LiteralParser) Parse(bs Remnant) StateSet {
 	if len(bs) < len(p.Literal) {
-		return NewStateSet(NewState(bs, Reject{bs}, nil))
+		return NewStateSet(
+			NewFinalState(Reject(bs), bs),
+		)
 	}
 	for i, l := 0, len(p.Literal); i < l; i++ {
 		if bs[i] != p.Literal[i] {
-			return NewStateSet(NewState(bs, Reject{bs}, nil))
+			return NewStateSet(
+				NewFinalState(Reject(bs), bs),
+			)
 		}
 	}
-	return NewStateSet(NewState(bs[len(p.Literal):], Accept{bs[:len(p.Literal)]}, nil))
-}
-
-func (p LiteralParser) GoString() string {
-	return "\"" + p.Literal + "\""
+	w := len(p.Literal)
+	return NewStateSet(
+		NewFinalState(Accept(bs[:w]), bs[w:]),
+	)
 }
 
 type EpsilonParser struct{}
@@ -96,12 +110,10 @@ func NewEpsilonParser() Parser {
 	return EpsilonParser{}
 }
 
-func (p EpsilonParser) Parse(bs []byte) StateSet {
-	return NewStateSet(NewState(bs, Accept{bs[:0]}, nil))
-}
-
-func (p EpsilonParser) GoString() string {
-	return "ε"
+func (p EpsilonParser) Parse(bs Remnant) StateSet {
+	return NewStateSet(
+		NewFinalState(Accept(bs[:0]), bs),
+	)
 }
 
 type AnyParser struct{}
@@ -110,15 +122,15 @@ func NewAnyParser() Parser {
 	return AnyParser{}
 }
 
-func (p AnyParser) Parse(bs []byte) StateSet {
+func (p AnyParser) Parse(bs Remnant) StateSet {
 	if len(bs) == 0 {
-		return NewStateSet(NewState(bs, Reject{bs[:0]}, nil))
+		return NewStateSet(
+			NewFinalState(Reject(bs), bs),
+		)
 	}
-	return NewStateSet(NewState(bs[1:], Accept{bs[:1]}, nil))
-}
-
-func (p AnyParser) GoString() string {
-	return "."
+	return NewStateSet(
+		NewFinalState(Accept(bs[:1]), bs[1:]),
+	)
 }
 
 type NotRuneParser rune
@@ -127,14 +139,14 @@ func NewNotRuneParser(r rune) Parser {
 	return NotRuneParser(r)
 }
 
-func (p NotRuneParser) Parse(bs []byte) StateSet {
+func (p NotRuneParser) Parse(bs Remnant) StateSet {
 	r, w := utf8.DecodeRune(bs)
 	if w == 0 || r == (rune)(p) {
-		return NewStateSet(NewState(bs, Reject{bs}, nil))
+		return NewStateSet(
+			NewFinalState(Reject(bs), bs),
+		)
 	}
-	return NewStateSet(NewState(bs[w:], Accept{bs[:w]}, nil))
-}
-
-func (p NotRuneParser) GoString() string {
-	return "."
+	return NewStateSet(
+		NewFinalState(Accept(bs[:w]), bs[w:]),
+	)
 }
