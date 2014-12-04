@@ -47,17 +47,17 @@ func (s State) Reduce() StateSet {
 	return s.Parser.Parse(s.Remnant)
 }
 
-// Continued reports wether a State is continued or not.
+// Continued reports wether a State is continued.
 func (s State) Continued() bool {
 	return (s.state == stateContinued)
 }
 
-// Continued reports wether a State is accepted or not.
+// Accepted reports wether a State is accepted.
 func (s State) Accepted() bool {
 	return (s.state == stateAccepted)
 }
 
-// Continued reports wether a State is rejected or not.
+// Rejected reports wether a State is rejected.
 func (s State) Rejected() bool {
 	return (s.state == stateRejected)
 }
