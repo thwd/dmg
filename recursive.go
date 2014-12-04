@@ -24,10 +24,11 @@ func (p *RecursiveParser) Parse(bs Remnant) StateSet {
 // NewMutuallyRecursiveParsers allows the definition of mutually recursive
 // grammar trees.
 //
-// It creates an amount of RecursiveParsers equal
-// to its first argument and passes them as a slice to its second argument.
-// The result of this operation must be a slice of the same length,
-// otherwise it panics.
+// It creates an amount of RecursiveParsers equal to its first argument
+// and passes them as a slice to its second argument. The result of this
+// operation must be a slice of the same length, otherwise it panics.
+//
+// It returns a slice of *RecursiveParsers of the same length.
 func NewMutuallyRecursiveParsers(n int, f func([]Parser) []Parser) []Parser {
 
 	ps := make([]Parser, n, n)
