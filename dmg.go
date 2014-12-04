@@ -10,13 +10,14 @@ type Parser interface {
 	Parse(Remnant) StateSet
 }
 
-// RangeParser is a Parser that accepts an UTF-8 rune in the range [Min, Max] (inclusive)
+// RangeParser is a Parser that accepts an UTF-8 rune
+// in the range [Min, Max] (inclusive)
 type RangeParser struct {
 	Min, Max rune
 }
 
-func NewRangeParser(min, Max rune) Parser {
-	return RangeParser{Min, Max}
+func NewRangeParser(min, max rune) Parser {
+	return RangeParser{min, max}
 }
 
 func (p RangeParser) Parse(bs Remnant) StateSet {

@@ -1,9 +1,10 @@
 package dmg
 
-import ()
-
+// A StateSet represents a set of States. It is an automatically ordered type.
 type StateSet []State
 
+// NewStateSet returns a new StateSet, containing all States
+// optionally passed to it.
 func NewStateSet(s ...State) StateSet {
 
 	q := new(StateSet)
@@ -15,8 +16,9 @@ func NewStateSet(s ...State) StateSet {
 	return *q
 }
 
-// convenience methods
-
+// Map executes a mapping function for every State in a StateSet
+// and returns a new StateSet containing the aggregated results
+// of this operation.
 func (s StateSet) Map(m func(State) State) StateSet {
 
 	x := NewStateSet()
@@ -28,10 +30,12 @@ func (s StateSet) Map(m func(State) State) StateSet {
 	return x
 }
 
+// Add adds a State to a StateSet
 func (s *StateSet) Add(n State) {
 	*s = append(*s, n).reorder()
 }
 
+// Next returns the next State in a StateSet.
 func (s *StateSet) Next() State {
 	z := *s
 	v := z[len(z)-1]
@@ -40,6 +44,7 @@ func (s *StateSet) Next() State {
 	return v
 }
 
+// Len reports the amount of elements in a StateSet.
 func (p StateSet) Len() int {
 	return len(p)
 }

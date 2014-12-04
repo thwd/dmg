@@ -1,5 +1,7 @@
 package dmg
 
+// MappingParser is a Parser that matches a given Parser against a Remnant
+// and mutates the Values of all accepted States through a mapping function.
 type MappingParser struct {
 	Parser  Parser
 	Mapping func(interface{}) interface{}

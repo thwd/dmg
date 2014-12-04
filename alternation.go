@@ -1,5 +1,9 @@
 package dmg
 
+// An AlternationParser is a Parser that will match a set of Parsers
+// against a Remnant in no particular order and return the merged
+// set of states again in no particular order. It will return
+// a set of either all accepted or all rejected States.
 type AlternationParser []Parser
 
 func NewAlternationParser(ps ...Parser) Parser {

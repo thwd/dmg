@@ -1,5 +1,7 @@
 package dmg
 
+// PrependParser is a Parser used by SequenceParser to prepend a value
+// to the Value of each accepted State returned by a given Parser
 type PrependParser struct {
 	Prepend interface{}
 	Parser  Parser

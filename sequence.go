@@ -1,5 +1,8 @@
 package dmg
 
+// A SequenceParser is a Parser that will match a set of Parsers
+// against a Remnant one after the other and return a set of either
+// all accepted or all rejected States.
 type SequenceParser []Parser
 
 func NewSequenceParser(ps ...Parser) Parser {
