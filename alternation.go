@@ -4,10 +4,10 @@ package dmg
 // against a Remnant in no particular order and return the merged
 // set of states again in no particular order. It will return
 // a set of either all accepted or all rejected States.
-//
-// It panics if called with zero arguments.
 type AlternationParser []Parser
 
+// NewAlternationParser returns a new AlternationParser.
+// It panics if called with zero arguments.
 func NewAlternationParser(ps ...Parser) Parser {
 
 	if len(ps) == 0 {
