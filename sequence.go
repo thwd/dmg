@@ -5,6 +5,8 @@ package dmg
 // all accepted or all rejected States.
 type SequenceParser []Parser
 
+// NewSequenceParser returns a new SequenceParser.
+// It panics if called with zero arguments.
 func NewSequenceParser(ps ...Parser) Parser {
 	if len(ps) == 0 {
 		panic("NewSequenceParser called with zero parsers")
