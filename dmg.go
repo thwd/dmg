@@ -72,11 +72,6 @@ func (p RangeParser) Parse(bs Remnant) StateSet {
 	)
 }
 
-func (p RangeParser) Equals(o Parser) bool {
-	q, k := o.(RangeParser)
-	return (k && q.Min == p.Min && q.Max == p.Max)
-}
-
 type LiteralParser struct {
 	Literal string
 }
