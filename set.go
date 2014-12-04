@@ -45,15 +45,15 @@ func (s *StateSet) Next() State {
 }
 
 // Len reports the amount of elements in a StateSet.
-func (p StateSet) Len() int {
-	return len(p)
+func (s StateSet) Len() int {
+	return len(s)
 }
 
-func (p StateSet) reorder() StateSet {
+func (s StateSet) reorder() StateSet {
 
-	for i := (p.Len() - 1); i > 0; i-- {
+	for i := (s.Len() - 1); i > 0; i-- {
 
-		lower, higher := p[i-1], p[i]
+		lower, higher := s[i-1], s[i]
 
 		// we want the shortest remnant on top
 
@@ -61,9 +61,9 @@ func (p StateSet) reorder() StateSet {
 			break
 		}
 
-		p[i-1], p[i] = higher, lower
+		s[i-1], s[i] = higher, lower
 
 	}
 
-	return p
+	return s
 }

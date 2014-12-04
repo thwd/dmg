@@ -4,6 +4,7 @@ import (
 	"unicode/utf8"
 )
 
+// A Remnant represents an input to a Parser
 type Remnant []byte
 
 type Parser interface {
