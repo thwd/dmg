@@ -18,18 +18,18 @@ func dissectionLoop(q StateSet, c chan State) {
 
 		for r.Len() > 0 {
 
-			t := r.Next()
+			s := r.Next()
 
-			if t.Parser == nil {
-				c <- t
+			if s.Parser == nil {
+				c <- s
 				continue
 			}
 
-			if t.Final && !t.Value.Success {
+			if s.Rejected() {
 				continue
 			}
 
-			q.Add(t)
+			q.Add(s)
 
 		}
 	}

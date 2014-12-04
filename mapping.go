@@ -15,16 +15,16 @@ func (p MappingParser) Parse(bs Remnant) StateSet {
 
 	return r.Map(func(s State) State {
 
-		if !s.Final {
-			return NewContinuedState(
+		if s.Continued() {
+			return Continue(
 				NewMappingParser(s.Parser, p.Mapping),
 				s.Remnant,
 			)
 		}
 
-		if s.Value.Success {
-			return NewFinalState(
-				Accept((p.Mapping)(s.Value.Value)),
+		if s.Accepted() {
+			return Accept(
+				(p.Mapping)(s.Value),
 				s.Remnant,
 			)
 		}

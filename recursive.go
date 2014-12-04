@@ -12,7 +12,7 @@ func NewRecursiveParser(f func(Parser) Parser) Parser {
 
 func (p *RecursiveParser) Parse(bs Remnant) StateSet {
 	return NewStateSet(
-		NewContinuedState(p.Parser, bs),
+		Continue(p.Parser, bs),
 	)
 }
 

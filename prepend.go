@@ -15,22 +15,22 @@ func (p PrependParser) Parse(bs Remnant) StateSet {
 
 	return r.Map(func(s State) State {
 
-		if !s.Final {
-			return NewContinuedState(
+		if s.Continued() {
+			return Continue(
 				NewPrependParser(p.Prepend, s.Parser),
 				s.Remnant,
 			)
 		}
 
-		if s.Value.Success {
-			return NewFinalState(
-				Accept([2]interface{}{p.Prepend, s.Value.Value}),
+		if s.Accepted() {
+			return Accept(
+				[2]interface{}{p.Prepend, s.Value},
 				s.Remnant,
 			)
 		}
 
-		return NewFinalState(
-			Reject([2]interface{}{p.Prepend, s.Value.Value}),
+		return Reject(
+			[2]interface{}{p.Prepend, s.Value},
 			s.Remnant,
 		)
 

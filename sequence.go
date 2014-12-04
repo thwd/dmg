@@ -22,12 +22,12 @@ func (p SequenceParser) Parse(bs Remnant) StateSet {
 
 		s := r.Next()
 
-		if !s.Final {
+		if s.Continued() {
 
 			cont := append([]Parser{s.Parser}, p[1:]...)
 
 			passups.Add(
-				NewContinuedState(
+				Continue(
 					NewSequenceParser(cont...),
 					s.Remnant,
 				),
@@ -36,11 +36,11 @@ func (p SequenceParser) Parse(bs Remnant) StateSet {
 			continue
 		}
 
-		if s.Value.Success {
+		if s.Accepted() {
 
 			passups.Add(
-				NewContinuedState(
-					NewPrependParser(s.Value.Value, NewSequenceParser(p[1:]...)),
+				Continue(
+					NewPrependParser(s.Value, NewSequenceParser(p[1:]...)),
 					s.Remnant,
 				),
 			)

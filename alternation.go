@@ -24,7 +24,7 @@ func (p AlternationParser) Parse(bs Remnant) StateSet {
 
 			s := r.Next()
 
-			if s.Final && !s.Value.Success {
+			if s.Rejected() {
 				rejects.Add(s)
 			} else {
 				passups.Add(s)
