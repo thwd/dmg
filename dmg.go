@@ -10,12 +10,13 @@ type Parser interface {
 	Parse(Remnant) StateSet
 }
 
+// RangeParser is a Parser that accepts an UTF-8 rune in the range [Min, Max] (inclusive)
 type RangeParser struct {
 	Min, Max rune
 }
 
-func NewRangeParser(min, max rune) Parser {
-	return RangeParser{min, max}
+func NewRangeParser(min, Max rune) Parser {
+	return RangeParser{Min, Max}
 }
 
 func (p RangeParser) Parse(bs Remnant) StateSet {
@@ -30,33 +31,33 @@ func (p RangeParser) Parse(bs Remnant) StateSet {
 	)
 }
 
-type LiteralParser struct {
-	Literal string
-}
+// LiteralParser is a Parser that accepts a given string
+type LiteralParser string
 
 func NewLiteralParser(l string) Parser {
-	return LiteralParser{l}
+	return LiteralParser(l)
 }
 
 func (p LiteralParser) Parse(bs Remnant) StateSet {
-	if len(bs) < len(p.Literal) {
+	if len(bs) < len(p) {
 		return NewStateSet(
 			Reject(bs, bs),
 		)
 	}
-	for i, l := 0, len(p.Literal); i < l; i++ {
-		if bs[i] != p.Literal[i] {
+	for i, l := 0, len(p); i < l; i++ {
+		if bs[i] != p[i] {
 			return NewStateSet(
 				Reject(bs, bs),
 			)
 		}
 	}
-	w := len(p.Literal)
+	w := len(p)
 	return NewStateSet(
 		Accept(bs[:w], bs[w:]),
 	)
 }
 
+// EpsilonParser is a Parser that always accepts the empty string
 type EpsilonParser struct{}
 
 func NewEpsilonParser() Parser {
@@ -69,6 +70,7 @@ func (p EpsilonParser) Parse(bs Remnant) StateSet {
 	)
 }
 
+// AnyParser is a Parser that accepts any one rune
 type AnyParser struct{}
 
 func NewAnyParser() Parser {
@@ -86,6 +88,7 @@ func (p AnyParser) Parse(bs Remnant) StateSet {
 	)
 }
 
+// NotRuneParser is a Parser that accepts any one rune except itself
 type NotRuneParser rune
 
 func NewNotRuneParser(r rune) Parser {
