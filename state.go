@@ -61,12 +61,3 @@ func (s State) Accepted() bool {
 func (s State) Rejected() bool {
 	return (s.state == stateRejected)
 }
-
-func (s State) GoString() string {
-	t := "{\n"
-	t += "\tRemnant: \"" + string(s.Remnant) + "\"\n"
-	t += "\tParser:  " + fmt.Sprintf("%#v", s.Parser) + "\n"
-	t += "\tValue:   " + fmt.Sprintf("%#v", s.Value) + "\n"
-	t += "}\n"
-	return t
-}
