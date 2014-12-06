@@ -6,7 +6,7 @@ import (
 )
 
 func Example() {
-	// [0-9]+
+	// number -> [0-9]+
 	number := dmg.NewPlusParser(
 		dmg.NewRangeParser('0', '9'),
 	)
