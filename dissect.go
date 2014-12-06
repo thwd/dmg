@@ -1,6 +1,8 @@
 package dmg
 
-func Dissect(q *StateSet) chan State {
+func Dissect(p Parser, r Remnant) chan State {
+
+	q := NewStateSet(Continue(p, r))
 
 	c := make(chan State)
 
@@ -30,4 +32,11 @@ func dissectionLoop(q *StateSet, c chan State) {
 		}
 	}
 
+}
+
+func MatchToString(m interface{}) string {
+	if v, k := m.([2]interface{}); k {
+		return MatchToString(v[0]) + MatchToString(v[1])
+	}
+	return string(m.(Remnant))
 }

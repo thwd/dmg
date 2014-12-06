@@ -39,7 +39,7 @@ manipulate matches. Following with the example:
 
 This package is work-in-progress and will grow. Once it reaches a Beta-state
 It'll get a grammar-tree optimizer which will hopefully eliminate any and all
-back-tracking from the parser implementation, essentially guaranteeing n O(n)
+back-tracking from the parser implementation, essentially guaranteeing an O(n)
 time-complexity for unambiguous grammars, as well as scaling elegantly for
 more complex grammars.
 
