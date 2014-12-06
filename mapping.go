@@ -11,7 +11,7 @@ func NewMappingParser(p Parser, m func(interface{}) interface{}) Parser {
 	return MappingParser{p, m}
 }
 
-func (p MappingParser) Parse(bs Remnant) StateSet {
+func (p MappingParser) Parse(bs Remnant) *StateSet {
 
 	r := p.Parser.Parse(bs)
 

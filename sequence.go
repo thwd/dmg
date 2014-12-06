@@ -1,8 +1,7 @@
 package dmg
 
 // A SequenceParser is a Parser that will match a set of Parsers
-// against a Remnant one after the other and return a set of either
-// all accepted or all rejected States.
+// against a Remnant one after the other.
 type SequenceParser []Parser
 
 // NewSequenceParser returns a new SequenceParser.
@@ -17,7 +16,12 @@ func NewSequenceParser(ps ...Parser) Parser {
 	return SequenceParser(ps)
 }
 
-func (p SequenceParser) Parse(bs Remnant) StateSet {
+// Parse applies every element in a sequence to a remnant, in order.
+//
+// If all possible branches of a sequence application fail, a set of
+// all rejected states will be returned; a set of accepted and
+// continuead states otherwise.
+func (p SequenceParser) Parse(bs Remnant) *StateSet {
 
 	passups, rejects := NewStateSet(), NewStateSet()
 

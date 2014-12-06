@@ -1,9 +1,5 @@
 package dmg
 
-import (
-	"fmt"
-)
-
 // A State represents a step in the parsing process. It can be either
 // accepted, rejected or continued, meaning that either it matched an
 // input, didn't match an input or has yet to match an input,
@@ -21,9 +17,9 @@ type State struct {
 }
 
 const (
-	stateAccepted byte = iota
+	stateContinued byte = iota
+	stateAccepted
 	stateRejected
-	stateContinued
 )
 
 // Accept returns a accepted state with Value v and Remnant r
@@ -43,7 +39,7 @@ func Continue(p Parser, r Remnant) State {
 
 // Reduce applies a State's Parser to it's Remnant and returns the
 // resulting StateSet.
-func (s State) Reduce() StateSet {
+func (s State) Reduce() *StateSet {
 	return s.Parser.Parse(s.Remnant)
 }
 

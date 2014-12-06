@@ -1,6 +1,6 @@
 package dmg
 
-func Dissect(q StateSet) chan State {
+func Dissect(q *StateSet) chan State {
 
 	c := make(chan State)
 
@@ -10,7 +10,7 @@ func Dissect(q StateSet) chan State {
 
 }
 
-func dissectionLoop(q StateSet, c chan State) {
+func dissectionLoop(q *StateSet, c chan State) {
 
 	for q.Len() > 0 {
 
@@ -20,12 +20,8 @@ func dissectionLoop(q StateSet, c chan State) {
 
 			s := r.Next()
 
-			if s.Parser == nil {
+			if !s.Continued() {
 				c <- s
-				continue
-			}
-
-			if s.Rejected() {
 				continue
 			}
 

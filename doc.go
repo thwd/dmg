@@ -14,7 +14,7 @@ A simple, left-recursive parser for arithmetic difference can be built as
 follows:
 
     number := dmg.NewPlusParser(
-        dmg.NewRangeParser('0', '9')
+        dmg.NewRangeParser('0', '9'),
     )
 
     difference := dmg.NewRecursiveParser(func(self dmg.Parser) dmg.Parser {
@@ -27,7 +27,7 @@ follows:
             number,
         )
     })
-    
+
 The above code, when evaluated to the end of a valid input will produce a
 left-leaning concrete syntax tree. In order to build an abstract syntax tree,
 dmg provides the MappingParser, which enables you to write "actions" to
@@ -36,11 +36,12 @@ manipulate matches. Following with the example:
     number := dmg.NewMappingParser(number, func(m interface{}) interface{} {
         return toInteger(m)
     })
-    
+
 This package is work-in-progress and will grow. Once it reaches a Beta-state
-I will work on a grammar-tree optimizer which will hopefully eliminate any
-and all back-tracking from the parser implementation, essentially giving it a
-best-case complexity of O(n), even for complicated grammars.
+It'll get a grammar-tree optimizer which will hopefully eliminate any and all
+back-tracking from the parser implementation, essentially guaranteeing n O(n)
+time-complexity for unambiguous grammars, as well as scaling elegantly for
+more complex grammars.
 
 */
 package dmg

@@ -15,7 +15,7 @@ func NewRecursiveParser(f func(Parser) Parser) Parser {
 	return p
 }
 
-func (p *RecursiveParser) Parse(bs Remnant) StateSet {
+func (p *RecursiveParser) Parse(bs Remnant) *StateSet {
 	return NewStateSet(
 		Continue(p.Parser, bs),
 	)
@@ -28,7 +28,7 @@ func (p *RecursiveParser) Parse(bs Remnant) StateSet {
 // and passes them as a slice to its second argument. The result of this
 // operation must be a slice of the same length, otherwise it panics.
 //
-// It returns a slice of *RecursiveParsers of the same length.
+// It returns a slice of Parsers of the same length.
 func NewMutuallyRecursiveParsers(n int, f func([]Parser) []Parser) []Parser {
 
 	ps := make([]Parser, n, n)

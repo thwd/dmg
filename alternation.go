@@ -2,8 +2,7 @@ package dmg
 
 // An AlternationParser is a Parser that will match a set of Parsers
 // against a Remnant in no particular order and return the merged
-// set of states again in no particular order. It will return
-// a set of either all accepted or all rejected States.
+// set of states again in no particular order.
 type AlternationParser []Parser
 
 // NewAlternationParser returns a new AlternationParser.
@@ -34,7 +33,13 @@ func NewAlternationParser(ps ...Parser) Parser {
 	return AlternationParser(qs)
 }
 
-func (p AlternationParser) Parse(bs Remnant) StateSet {
+// Parse applies all branches of an alternation to a remnant in no
+// particular order.
+//
+// Returns a set of either all rejected states if all branches of
+// the alternation were rejected, or a set containing accepted and
+// continued states otherwise.
+func (p AlternationParser) Parse(bs Remnant) *StateSet {
 
 	passups, rejects := NewStateSet(), NewStateSet()
 
