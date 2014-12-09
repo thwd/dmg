@@ -108,3 +108,26 @@ func (p NotRuneParser) Parse(bs Remnant) *StateSet {
 		Accept(bs[:w], bs[w:]),
 	)
 }
+
+// NotParser is a Parser that accepts any one rune from an input that
+// is rejected by a given Parser. It rejects anything that said Parser
+// accepts, without consuming any input.
+type NotParser struct {
+	Parser Parser
+}
+
+func NewNotParser(p Parser) Parser {
+	return NotParser{p}
+}
+
+func (p NotParser) Parse(bs Remnant) *StateSet {
+	return p.Parser.Parse(bs).Map(func(s State) State {
+		if s.Continued() {
+			return s
+		}
+		if s.Accepted() {
+			return Reject(s.Value, bs)
+		}
+		return NewAnyParser().Parse(bs).Next()
+	})
+}
