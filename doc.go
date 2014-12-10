@@ -13,10 +13,12 @@ and `?`, respectively.
 A simple, left-recursive parser for arithmetic difference can be built as
 follows:
 
+    // number -> [0-9]+
     number := dmg.NewPlusParser(
         dmg.NewRangeParser('0', '9'),
     )
 
+    // difference -> difference '-' number | number
     difference := dmg.NewRecursiveParser(func(self dmg.Parser) dmg.Parser {
         return dmg.NewAlternationParser(
             dmg.NewSequenceParser(
