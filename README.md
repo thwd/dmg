@@ -7,4 +7,10 @@ Full documentation can be found on http://godoc.org/github.com/thwd/dmg.
 
 It's not quite ready for prime-time yet but it works, and works well so far. There will be more added features in the near future. I'm working on finishing a stable API and will promote it to beta then.
 
-**This project contains some original research of mine**, obviously built upon the work others. Full bibliography and credits to follow.
+This project contains some original research of mine, built upon the following articles and theses:
+ * [Matt Might's "Yacc is dead"](http://matt.might.net/articles/parsing-with-derivatives/)
+ * [Russ Cox's "Yacc is not dead"](http://research.swtch.com/yaccalive)
+ * [Janusz Brzozowksi's "Derivatives of regular expressions"](http://dl.acm.org/citation.cfm?doid=321239.321249)
+ * [Paul Lickman's "Parsing with fixedpoints"](https://sites.google.com/a/lickman.com/paul-lickman/)
+
+An article on said research coming soon.
