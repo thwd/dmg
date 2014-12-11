@@ -90,25 +90,6 @@ func (p AnyParser) Parse(bs Remnant) *StateSet {
 	)
 }
 
-// NotRuneParser is a Parser that accepts any one rune except itself
-type NotRuneParser rune
-
-func NewNotRuneParser(r rune) Parser {
-	return NotRuneParser(r)
-}
-
-func (p NotRuneParser) Parse(bs Remnant) *StateSet {
-	r, w := utf8.DecodeRune(bs)
-	if w == 0 || r == (rune)(p) {
-		return NewStateSet(
-			Reject(bs, bs),
-		)
-	}
-	return NewStateSet(
-		Accept(bs[:w], bs[w:]),
-	)
-}
-
 // NotParser is a Parser that accepts any one rune from an input that
 // is rejected by a given Parser. It rejects anything that said Parser
 // accepts, without consuming any input.
@@ -120,14 +101,14 @@ func NewNotParser(p Parser) Parser {
 	return NotParser{p}
 }
 
-func (p NotParser) Parse(bs Remnant) *StateSet {
-	return p.Parser.Parse(bs).Map(func(s State) State {
+func (p NotParser) Parse(r Remnant) *StateSet {
+	return p.Parser.Parse(r).Map(func(s State) State {
 		if s.Continued() {
 			return s
 		}
 		if s.Accepted() {
-			return Reject(s.Value, bs)
+			return Reject(s.Value, s.Remnant)
 		}
-		return NewAnyParser().Parse(bs).Next()
+		return Continue(NewAnyParser(), r)
 	})
 }
