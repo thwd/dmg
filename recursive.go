@@ -16,10 +16,8 @@ func NewRecursiveParser(f func(Parser) Parser) Parser {
 }
 
 // Parse delegates to the RecursiveParser's underlying parser.
-func (p *RecursiveParser) Parse(bs Remnant) *StateSet {
-	return NewStateSet(
-		Continue(p.Parser, bs),
-	)
+func (p *RecursiveParser) Parse(r Remnant, c chan State) {
+	c <- Continue(p.Parser, r)
 }
 
 // NewMutuallyRecursiveParsers allows the definition of mutually recursive

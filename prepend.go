@@ -11,30 +11,41 @@ func NewPrependParser(r interface{}, p Parser) Parser {
 	return PrependParser{r, p}
 }
 
-func (p PrependParser) Parse(bs Remnant) *StateSet {
+func (p PrependParser) Parse(r Remnant, c chan State) {
 
-	r := p.Parser.Parse(bs)
+	d, f := make(chan State), make(chan struct{})
 
-	return r.Map(func(s State) State {
+	go func() {
+		for s := range d {
 
-		if s.Continued() {
-			return Continue(
-				NewPrependParser(p.Prepend, s.Parser),
-				s.Remnant,
-			)
-		}
+			if s.Continued() {
+				c <- Continue(
+					NewPrependParser(p.Prepend, s.Parser),
+					s.Remnant,
+				)
+				continue
+			}
 
-		if s.Accepted() {
-			return Accept(
+			if s.Accepted() {
+				c <- Accept(
+					[2]interface{}{p.Prepend, s.Value},
+					s.Remnant,
+				)
+				continue
+			}
+
+			c <- Reject(
 				[2]interface{}{p.Prepend, s.Value},
 				s.Remnant,
 			)
 		}
 
-		return Reject(
-			[2]interface{}{p.Prepend, s.Value},
-			s.Remnant,
-		)
+		f <- struct{}{}
+	}()
 
-	})
+	p.Parser.Parse(r, d)
+
+	close(d)
+
+	<-f
 }

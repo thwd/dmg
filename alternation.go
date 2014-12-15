@@ -1,5 +1,9 @@
 package dmg
 
+import (
+	"sync"
+)
+
 // An AlternationParser is a Parser that will match a set of Parsers
 // against a Remnant in no particular order and return the merged
 // set of states again in no particular order.
@@ -35,33 +39,20 @@ func NewAlternationParser(ps ...Parser) Parser {
 
 // Parse applies all branches of an alternation to a remnant in no
 // particular order.
-//
-// Returns a set of either all rejected states if all branches of
-// the alternation were rejected, or a set containing accepted and
-// continued states otherwise.
-func (p AlternationParser) Parse(bs Remnant) *StateSet {
+func (p AlternationParser) Parse(r Remnant, c chan State) {
 
-	passups, rejects := NewStateSet(), NewStateSet()
+	wg := &sync.WaitGroup{}
 
 	for _, q := range p {
 
-		r := q.Parse(bs)
+		wg.Add(1)
 
-		for r.Len() > 0 {
+		go func(q Parser) {
+			q.Parse(r, c)
+			wg.Done()
+		}(q)
 
-			s := r.Next()
-
-			if s.Rejected() {
-				rejects.Add(s)
-			} else {
-				passups.Add(s)
-			}
-		}
 	}
 
-	if passups.Len() == 0 {
-		return rejects
-	}
-
-	return passups
+	wg.Wait()
 }

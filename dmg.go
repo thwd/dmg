@@ -8,7 +8,7 @@ import (
 type Remnant []byte
 
 type Parser interface {
-	Parse(Remnant) *StateSet
+	Parse(Remnant, chan State)
 }
 
 // RangeParser is a Parser that accepts an UTF-8 rune
@@ -21,16 +21,16 @@ func NewRangeParser(min, max rune) Parser {
 	return RangeParser{min, max}
 }
 
-func (p RangeParser) Parse(bs Remnant) *StateSet {
-	r, w := utf8.DecodeRune(bs)
-	if w == 0 || r < p.Min || r > p.Max {
-		return NewStateSet(
-			Reject(bs, bs),
-		)
+func (p RangeParser) Parse(r Remnant, c chan State) {
+
+	a, w := utf8.DecodeRune(r)
+
+	if w == 0 || a < p.Min || a > p.Max {
+		c <- Reject(nil, r)
+		return
 	}
-	return NewStateSet(
-		Accept(bs[:w], bs[w:]),
-	)
+
+	c <- Accept(r[:w], r[w:])
 }
 
 // LiteralParser is a Parser that accepts a given string
@@ -40,23 +40,22 @@ func NewLiteralParser(l string) Parser {
 	return LiteralParser(l)
 }
 
-func (p LiteralParser) Parse(bs Remnant) *StateSet {
-	if len(bs) < len(p) {
-		return NewStateSet(
-			Reject(bs, bs),
-		)
+func (p LiteralParser) Parse(r Remnant, c chan State) {
+
+	if len(r) < len(p) {
+		c <- Reject(nil, r)
+		return
 	}
+
 	for i, l := 0, len(p); i < l; i++ {
-		if bs[i] != p[i] {
-			return NewStateSet(
-				Reject(bs, bs),
-			)
+		if r[i] != p[i] {
+			c <- Reject(nil, r)
+			return
 		}
 	}
-	w := len(p)
-	return NewStateSet(
-		Accept(bs[:w], bs[w:]),
-	)
+
+	c <- Accept(r[:len(p)], r[len(p):])
+
 }
 
 // EpsilonParser is a Parser that always accepts the empty string
@@ -66,10 +65,8 @@ func NewEpsilonParser() Parser {
 	return EpsilonParser{}
 }
 
-func (p EpsilonParser) Parse(bs Remnant) *StateSet {
-	return NewStateSet(
-		Accept(bs[:0], bs),
-	)
+func (p EpsilonParser) Parse(r Remnant, c chan State) {
+	c <- Accept(r[:0], r)
 }
 
 // AnyParser is a Parser that accepts any one rune
@@ -79,15 +76,15 @@ func NewAnyParser() Parser {
 	return AnyParser{}
 }
 
-func (p AnyParser) Parse(bs Remnant) *StateSet {
-	if len(bs) == 0 {
-		return NewStateSet(
-			Reject(bs, bs),
-		)
+func (p AnyParser) Parse(r Remnant, c chan State) {
+
+	if len(r) == 0 {
+		c <- Reject(nil, r)
+		return
 	}
-	return NewStateSet(
-		Accept(bs[:1], bs[1:]),
-	)
+
+	c <- Accept(r[:1], r[1:])
+
 }
 
 // NotParser is a Parser that accepts any one rune from an input that
@@ -101,14 +98,34 @@ func NewNotParser(p Parser) Parser {
 	return NotParser{p}
 }
 
-func (p NotParser) Parse(r Remnant) *StateSet {
-	return p.Parser.Parse(r).Map(func(s State) State {
-		if s.Continued() {
-			return s
+func (p NotParser) Parse(r Remnant, c chan State) {
+
+	d, f := make(chan State), make(chan struct{})
+
+	go func() {
+
+		for s := range d {
+
+			if s.Continued() {
+				c <- s
+				continue
+			}
+
+			if s.Accepted() {
+				c <- Reject(p.Parser, s.Remnant)
+				continue
+			}
+
+			NewAnyParser().Parse(r, c)
 		}
-		if s.Accepted() {
-			return Reject(s.Value, s.Remnant)
-		}
-		return Continue(NewAnyParser(), r)
-	})
+
+		f <- struct{}{}
+
+	}()
+
+	p.Parser.Parse(r, d)
+
+	close(d)
+
+	<-f
 }

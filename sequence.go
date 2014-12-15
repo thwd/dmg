@@ -17,53 +17,40 @@ func NewSequenceParser(ps ...Parser) Parser {
 }
 
 // Parse applies every element in a sequence to a remnant, in order.
-//
-// If all possible branches of a sequence application fail, a set of
-// all rejected states will be returned; a set of accepted and
-// continuead states otherwise.
-func (p SequenceParser) Parse(bs Remnant) *StateSet {
+func (p SequenceParser) Parse(r Remnant, c chan State) {
 
-	passups, rejects := NewStateSet(), NewStateSet()
+	d, f := make(chan State), make(chan struct{})
 
-	r := p[0].Parse(bs)
+	go func() {
+		for s := range d {
 
-	for r.Len() > 0 {
-
-		s := r.Next()
-
-		if s.Continued() {
-
-			cont := append([]Parser{s.Parser}, p[1:]...)
-
-			passups.Add(
-				Continue(
-					NewSequenceParser(cont...),
+			if s.Continued() {
+				c <- Continue(
+					NewSequenceParser(
+						append([]Parser{s.Parser}, p[1:]...)...,
+					),
 					s.Remnant,
-				),
-			)
+				)
+				continue
+			}
 
-			continue
-		}
-
-		if s.Accepted() {
-
-			passups.Add(
-				Continue(
+			if s.Accepted() {
+				c <- Continue(
 					NewPrependParser(s.Value, NewSequenceParser(p[1:]...)),
 					s.Remnant,
-				),
-			)
+				)
+				continue
+			}
 
-			continue
+			c <- s
+
 		}
+		f <- struct{}{}
+	}()
 
-		rejects.Add(s)
+	p[0].Parse(r, d)
 
-	}
+	close(d)
 
-	if passups.Len() == 0 {
-		return rejects
-	}
-
-	return passups
+	<-f
 }

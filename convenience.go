@@ -25,3 +25,13 @@ func NewPlusParser(p Parser) Parser {
 		p, NewKleeneParser(p),
 	)
 }
+
+func MatchToString(m interface{}) string {
+	if m == nil {
+		return ""
+	}
+	if v, k := m.([2]interface{}); k {
+		return MatchToString(v[0]) + MatchToString(v[1])
+	}
+	return string(m.(Remnant))
+}

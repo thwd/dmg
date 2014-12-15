@@ -13,26 +13,38 @@ func NewMappingParser(p Parser, m func(interface{}) interface{}) Parser {
 
 // Parse delegates to the MappingParser's underlying parser and maps all
 // matched states' values through the MappingParser's mapping function.
-func (p MappingParser) Parse(bs Remnant) *StateSet {
+func (p MappingParser) Parse(r Remnant, c chan State) {
 
-	r := p.Parser.Parse(bs)
+	d, f := make(chan State), make(chan struct{})
 
-	return r.Map(func(s State) State {
+	go func() {
+		for s := range d {
 
-		if s.Continued() {
-			return Continue(
-				NewMappingParser(s.Parser, p.Mapping),
-				s.Remnant,
-			)
+			if s.Continued() {
+				c <- Continue(
+					NewMappingParser(s.Parser, p.Mapping),
+					s.Remnant,
+				)
+				continue
+			}
+
+			if s.Accepted() {
+				c <- Accept(
+					(p.Mapping)(s.Value),
+					s.Remnant,
+				)
+				continue
+			}
+
+			c <- s
 		}
 
-		if s.Accepted() {
-			return Accept(
-				(p.Mapping)(s.Value),
-				s.Remnant,
-			)
-		}
+		f <- struct{}{}
+	}()
 
-		return s
-	})
+	p.Parser.Parse(r, d)
+
+	close(d)
+
+	<-f
 }
