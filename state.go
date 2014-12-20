@@ -39,7 +39,7 @@ func Continue(p Parser, r Remnant) State {
 
 // Reduce applies a State's Parser to it's Remnant and returns the
 // resulting StateSet.
-func (s State) Reduce() *StateSet {
+func (s State) Reduce() StateSet {
 	return s.Parser.Parse(s.Remnant)
 }
 

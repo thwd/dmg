@@ -11,7 +11,7 @@ func NewPrependParser(r interface{}, p Parser) Parser {
 	return PrependParser{r, p}
 }
 
-func (p PrependParser) Parse(bs Remnant) *StateSet {
+func (p PrependParser) Parse(bs Remnant) StateSet {
 
 	r := p.Parser.Parse(bs)
 

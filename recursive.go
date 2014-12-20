@@ -16,7 +16,7 @@ func NewRecursiveParser(f func(Parser) Parser) Parser {
 }
 
 // Parse delegates to the RecursiveParser's underlying parser.
-func (p *RecursiveParser) Parse(bs Remnant) *StateSet {
+func (p *RecursiveParser) Parse(bs Remnant) StateSet {
 	return NewStateSet(
 		Continue(p.Parser, bs),
 	)

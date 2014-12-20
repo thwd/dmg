@@ -12,7 +12,7 @@ func Dissect(p Parser, r Remnant) chan State {
 
 }
 
-func dissectionLoop(q *StateSet, c chan State) {
+func dissectionLoop(q StateSet, c chan State) {
 
 	for q.Len() > 0 {
 
@@ -30,6 +30,7 @@ func dissectionLoop(q *StateSet, c chan State) {
 			q.Add(s)
 
 		}
+
 	}
 
 }

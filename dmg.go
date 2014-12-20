@@ -8,7 +8,7 @@ import (
 type Remnant []byte
 
 type Parser interface {
-	Parse(Remnant) *StateSet
+	Parse(Remnant) StateSet
 }
 
 // RangeParser is a Parser that accepts an UTF-8 rune
@@ -21,7 +21,7 @@ func NewRangeParser(min, max rune) Parser {
 	return RangeParser{min, max}
 }
 
-func (p RangeParser) Parse(bs Remnant) *StateSet {
+func (p RangeParser) Parse(bs Remnant) StateSet {
 	r, w := utf8.DecodeRune(bs)
 	if w == 0 || r < p.Min || r > p.Max {
 		return NewStateSet(
@@ -40,7 +40,7 @@ func NewLiteralParser(l string) Parser {
 	return LiteralParser(l)
 }
 
-func (p LiteralParser) Parse(bs Remnant) *StateSet {
+func (p LiteralParser) Parse(bs Remnant) StateSet {
 	if len(bs) < len(p) {
 		return NewStateSet(
 			Reject(bs, bs),
@@ -66,7 +66,7 @@ func NewEpsilonParser() Parser {
 	return EpsilonParser{}
 }
 
-func (p EpsilonParser) Parse(bs Remnant) *StateSet {
+func (p EpsilonParser) Parse(bs Remnant) StateSet {
 	return NewStateSet(
 		Accept(bs[:0], bs),
 	)
@@ -79,7 +79,7 @@ func NewAnyParser() Parser {
 	return AnyParser{}
 }
 
-func (p AnyParser) Parse(bs Remnant) *StateSet {
+func (p AnyParser) Parse(bs Remnant) StateSet {
 	if len(bs) == 0 {
 		return NewStateSet(
 			Reject(bs, bs),
@@ -101,7 +101,7 @@ func NewNotParser(p Parser) Parser {
 	return NotParser{p}
 }
 
-func (p NotParser) Parse(r Remnant) *StateSet {
+func (p NotParser) Parse(r Remnant) StateSet {
 	return p.Parser.Parse(r).Map(func(s State) State {
 		if s.Continued() {
 			return s

@@ -21,7 +21,7 @@ func NewSequenceParser(ps ...Parser) Parser {
 // If all possible branches of a sequence application fail, a set of
 // all rejected states will be returned; a set of accepted and
 // continuead states otherwise.
-func (p SequenceParser) Parse(bs Remnant) *StateSet {
+func (p SequenceParser) Parse(bs Remnant) StateSet {
 
 	passups, rejects := NewStateSet(), NewStateSet()
 

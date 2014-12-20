@@ -39,7 +39,7 @@ func NewAlternationParser(ps ...Parser) Parser {
 // Returns a set of either all rejected states if all branches of
 // the alternation were rejected, or a set containing accepted and
 // continued states otherwise.
-func (p AlternationParser) Parse(bs Remnant) *StateSet {
+func (p AlternationParser) Parse(bs Remnant) StateSet {
 
 	passups, rejects := NewStateSet(), NewStateSet()
 
