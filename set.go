@@ -1,6 +1,6 @@
 package dmg
 
-// A StateSet represents a set of States. It is an automatically ordered type.
+// A StateSet represents a set of States.
 type StateSet struct {
 	states *[]State
 }
