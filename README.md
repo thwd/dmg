@@ -1,3 +1,5 @@
+This project has been abandoned. It's left here for historic purposes.
+
 ## dmg
 ##### Simple and Fast (Generalized) Parsing for Go
 
@@ -13,4 +15,3 @@ This project contains some original research of mine, built upon the following a
  * [Janusz Brzozowksi's "Derivatives of regular expressions"](http://dl.acm.org/citation.cfm?doid=321239.321249)
  * [Paul Lickman's "Parsing with fixedpoints"](https://sites.google.com/a/lickman.com/paul-lickman/)
 
-An article on said research coming soon.
